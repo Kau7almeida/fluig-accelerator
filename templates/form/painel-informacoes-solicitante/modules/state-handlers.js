@@ -5,9 +5,9 @@ var StateHandlers = (function () {
 
     // Preenche dados do solicitante nos campos de exibição
     function fillSolicitanteInfo() {
-        $("#inner_name").text($("#txt_solic").val());
-        $("#inner_email").text($("#txt_email_solic").val());
-        $("#inner_dth").text($("#txt_dth_solic").val());
+        $("#inner_name").text($("#hd_solic").val());
+        $("#inner_email").text($("#hd_email_solic").val());
+        $("#inner_dth").text($("#hd_dth_solic").val());
     }
 
     // Handlers específicos para cada estado
@@ -16,9 +16,9 @@ var StateHandlers = (function () {
         0: function (user, process) {
             var date = new Date();
             var dth = date.toLocaleString();
-            $("hd_solic").val(user[0].colleagueName);
-            $("hd_email_solic").val(user[0].mail);
-            $("hd_dth_solic").val(dth.replace(", ", " - "));
+            $("#hd_solic").val(user[0].colleagueName);
+            $("#hd_email_solic").val(user[0].mail);
+            $("#hd_dth_solic").val(dth.replace(", ", " - "));
             fillSolicitanteInfo();
         }
 

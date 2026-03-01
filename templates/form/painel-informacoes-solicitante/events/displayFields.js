@@ -1,7 +1,7 @@
 function displayFields(form, customHTML) {
 
     // Recuperação de dados
-    const dataForm = {
+    var dataForm = {
         processId: getValue("WKNumProces"),
         user: getValue("WKUser"),
         state: getValue("WKNumState")
