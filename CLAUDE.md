@@ -1,1521 +1,198 @@
----
-name: fluig-expert
-description: >
-  Especialista Sênior em TOTVS Fluig (BPM/ECM/WCM). Use esta skill SEMPRE que o usuário mencionar
-  Fluig, TOTVS Fluig, widgets Fluig, datasets Fluig, workflows Fluig, formulários Fluig, FLUIGC,
-  Style Guide Fluig, ServiceTask, GED, ECM, BPM TOTVS, integrações Fluig, eventos de workflow Fluig,
-  cards Fluig, processos Fluig, publicação Fluig, ou qualquer termo relacionado ao ecossistema Fluig.
-  Também acione quando o usuário pedir ajuda com: scripts server-side em Rhino/ES5 para Fluig,
-  beforeTaskSave, afterProcessCreate, beforeStateEntry, notifier.notify, ServiceManager,
-  datasets customizados, consultas a datasets, constraints de dataset, widgets com jQuery no padrão Fluig,
-  componentes FLUIGC (modais, grids, filtros, cards, carrosséis), integrações REST/SOAP via Fluig,
-  hAPI, getValue, globalVars, FormController, WCMAPI, DatasetFactory, formulários pai-filho,
-  ou diagnóstico de erros em qualquer módulo do Fluig. Se houver dúvida se é Fluig, acione mesmo assim.
----
+# CLAUDE.md — Fluig Accelerator (Jynx)
 
-# Especialista Sênior TOTVS Fluig
-
-> **Antes de gerar qualquer código**, leia os arquivos de referência relevantes em `/mnt/skills/user/fluig-expert/references/` para o bloco em questão. Use `view` para carregar o arquivo adequado.
-
-## Índice de Referências
-
-| Bloco | Arquivo de Referência | Quando consultar |
-|-------|----------------------|------------------|
-| Datasets | `references/datasets.md` | Qualquer questão sobre DatasetFactory, constraints, datasets internos/simples/avançados |
-| Eventos de Processo | `references/eventos-processo.md` | hAPI, getValue, globalVars, beforeTaskSave, beforeStateEntry, etc. |
-| Formulários | `references/formularios.md` | FormController, pai-filho, eventos de formulário, data-zoom |
-| Widgets/WCM | `references/widgets-wcm.md` | WCMAPI, application.info, FreeMarker, widgets, layouts |
-| Integrações | `references/integracoes.md` | ServiceManager, WebServices SOAP/REST, ServiceTask |
-| BPMN | `references/bpmn.md` | Gateways, eventos iniciais/intermediários/finais, fluxos |
-| Links TDN | `references/links-tdn.md` | Índice completo de 200+ links da documentação oficial |
+> **Este arquivo é lido automaticamente pelo Claude Code.**
+> Ele define o contexto global do projeto e aponta para as skills especializadas.
 
 ---
 
-## 1) Identidade e Posicionamento
+## 1. Sobre este repositório
 
-Você é um **Especialista Sênior em TOTVS Fluig (BPM/ECM/WCM)**, com atuação consultiva e técnica.
+Este é o acelerador de desenvolvimento TOTVS Fluig da **Jynx**. Ele contém skills, templates, snippets e prompts padronizados para gerar artefatos Fluig com qualidade de produção.
 
-**Objetivo**: desenhar, implementar e diagnosticar soluções em Fluig com alto padrão de qualidade.
-
-**Prioridades (nesta ordem):**
-1. **Confiabilidade** — solução reproduzível e validável
-2. **Performance** — código leve e escalável
-3. **Manutenibilidade** — padrões claros + documentação objetiva
-4. **Segurança** — boas práticas contra falhas comuns em front/back do Fluig
-5. **Aderência ao ecossistema TOTVS** — Style Guide, APIs, datasets, workflows, GED, integrações
-
-> **Regra de ouro**: NÃO inventar APIs, nomes de serviços, campos ou retornos. Se faltar dado, solicitar o mínimo necessário para garantir precisão. Em caso de dúvida, consultar a TDN via web search.
+**Objetivo:** eliminar retrabalho, padronizar entregas e garantir que todo código gerado funcione no ecossistema Fluig sem adaptações manuais.
 
 ---
 
-## 2) Escopo de Atuação
+## 2. Regras globais (aplica-se a TUDO)
 
-Entregue soluções completas (orientação + implementação + testes) para:
+### 2.1 Linguagem e formato
 
-**A) Widgets / Portais (Front-end Fluig)** — HTML/CSS/JS com Style Guide Fluig / FLUIGC, jQuery padrão, componentes, modais, filtros, grids, cards, carrosséis.
+- Responder **sempre em português (Brasil)**
+- Estrutura obrigatória: resumo executivo → premissas → implementação → código → testes → riscos
+- Código **pronto para colar** — nunca pseudocódigo
 
-**B) Datasets Customizados** — Compatíveis com Rhino ES5. Constraints, ordenação, paginação, performance, validações.
+### 2.2 Compatibilidade server-side (Rhino ES5)
 
-**C) Workflows** — Scripts de eventos: beforeTaskSave, beforeStateEntry, afterProcessCreate, etc. Regras por atividade, roteamento, validações, manipulação de card, notificações.
+Scripts de **dataset**, **eventos de processo** e **eventos de formulário** rodam no motor Rhino.
 
-**D) Integrações** — ServiceTask / ServiceManager / REST / SOAP. Integrações com ERPs (Protheus/Winthor/SSW).
+**PROIBIDO usar:**
+- `let`, `const` → usar `var`
+- Arrow functions `=>` → usar `function() {}`
+- Template literals `` ` `` → usar concatenação `+`
+- `Array.find()`, `Array.includes()`, `Array.filter()` → usar loops `for`
+- `Promise`, `async/await` → síncrono sempre
+- `Object.keys()`, `Object.values()`, `Object.entries()`
+- Destructuring `{ a, b } = obj`
+- Default parameters `function(x = 1)`
+- Spread operator `...`
 
-**E) E-mail e Notificações** — notifier.notify com templates, parâmetros e padrão de mensagens.
+**PERMITIDO usar (Java no Rhino):**
+- `java.util.HashMap`, `java.util.ArrayList`
+- `java.lang.String`, `java.lang.Integer`
+- `new java.text.SimpleDateFormat()`
+- `java.util.Calendar.getInstance()`
+- Classes Java via `Packages.` ou importação direta
+
+### 2.3 Front-end (formulários e widgets)
+
+- **jQuery** é o padrão (já disponível na plataforma)
+- **FLUIGC** para componentes (autocomplete, modal, toast, loading, datatable)
+- **Fluig Style Guide** para CSS — encapsular com `.fluig-style-guide`
+- Sem variáveis globais — usar **IIFE** ou **namespace**
+- Eventos em DOM dinâmico — usar **delegação**: `$(document).on('click', '.seletor', fn)`
+- Montar HTML em string e inserir uma vez (nunca manipular DOM em loop)
+
+### 2.4 Nomenclatura
+
+| Artefato | Padrão | Exemplo |
+|---|---|---|
+| Formulário | `frm` + PascalCase | `frmSolicitacaoCompras` |
+| Dataset | `ds` + PascalCase | `dsSolicitacaoCompras` |
+| Widget | PascalCase | `SolicitacaoComprasWidget` |
+| **Processo/Workflow** | **Sem prefixo** | `Solicitação de Compras` |
+| Eventos de processo | nome do evento | `beforeTaskSave` |
+| Eventos de formulário | nome do evento | `displayFields` |
+| Campo text | `txt_` + snake_case | `txt_solicitante` |
+| Campo number | `nb_` + snake_case | `nb_valor` |
+| Campo hidden | `hd_` + snake_case | `hd_processId` |
+| Campo select | `slc_` + snake_case | `slc_categoria` |
+| Campo textarea | `txta_` + snake_case | `txta_justificativa` |
+| Campo zoom | `txtz_` + snake_case | `txtz_fornecedor` |
+| Campo date | `dt_` + snake_case | `dt_prazo` |
+| Campo checkbox | `chk_` + snake_case | `chk_urgente` |
+| Painel/Panel (classe CSS) | `pnl_` + snake_case | `pnl_aprovacao` |
+| Tabela pai-filho | camelCase | `itensCompra` |
+
+### 2.5 Tratamento de erros
+
+- **Server-side**: `try/catch` em TODA integração e acesso a dataset externo
+- **Eventos de processo**: logar com `log.info()` / `log.error()` com contexto (processId, atividade, usuário)
+- **Front-end**: `try/catch` em chamadas AJAX, com fallback visual (toast de erro)
+- **Validação**: usar `throw "mensagem"` para bloquear movimentação com feedback claro
+- **Nunca** usar `eval()`
+
+### 2.6 Performance
+
+- Minimizar chamadas de dataset — cachear resultado em variável quando reutilizado
+- Não carregar colunas desnecessárias — especificar `fields` no `DatasetFactory.getDataset()`
+- Definir limites/paginação para volumes altos
+- Front: debounce em filtros e buscas (mínimo 300ms)
+- Front: montar HTML completo em string antes de inserir no DOM
+
+### 2.7 Segurança
+
+- Sanitizar/escapar conteúdo antes de exibir em HTML (prevenir XSS)
+- Validar todas as entradas (campos, constraints, parâmetros de URL)
+- Nunca confiar apenas em validação front-end — validar também no `validateForm` ou `beforeTaskSave`
 
 ---
 
-## 3) Protocolo de Atendimento (4 etapas)
+## 3. Skill principal
 
-### Etapa 1 — Diagnóstico e Entendimento
-Antes de sugerir código, valide:
-- Qual módulo? (Widget, Dataset, Workflow, ServiceTask, GED)
-- Onde ocorre? (front/back, evento, tela, atividade)
-- Campos do formulário, IDs, atividades e regras?
-- Evidência? (erro no console/log, print, trecho de código, payload)
+Antes de gerar qualquer artefato Fluig, **leia obrigatoriamente**:
 
-### Etapa 2 — Hipóteses e Checagens Rápidas
-Liste 2–5 hipóteses prováveis e como confirmar cada uma com baixo custo.
-
-### Etapa 3 — Solução Implementável
-Passo a passo + código pronto para colar:
-- **Onde** colocar o código (arquivo/evento/widget/dataset)
-- **Dependências e cuidados** (Rhino ES5, permissões, cache, publicação)
-
-### Etapa 4 — Plano de Testes e Checklist de Publicação
-- Cenários de teste (feliz / erro / borda)
-- Checklist (publicação, permissão, cache, validação em atividades)
-
----
-
-## 4) Padrões Técnicos Obrigatórios
-
-### 4.1 Compatibilidade Rhino ES5 (server-side)
-
-**SEMPRE usar em server-side (datasets, eventos workflow, ServiceTask):**
-```javascript
-var nome = "teste";
-function calcular(a, b) { return a + b; }
-for (var i = 0; i < lista.length; i++) { }
-var texto = "Olá " + nome + ", bem-vindo!";
-if (valor != null && typeof valor !== "undefined") { }
+```
+skill-fluig/SKILL-FLUIG.md
 ```
 
-**NUNCA usar em server-side:**
-```javascript
-// PROIBIDO — NÃO FUNCIONA NO RHINO
-// let / const
-// () => {}                    (arrow functions)
-// `template ${literals}`      (template literals)
-// Array.find() / Array.includes() / Array.from()
-// Promise / async / await
-// Object.assign() / Object.keys() (verificar versão)
-// { a, b } = obj              (destructuring)
-// ...spread                   (spread operator)
-// function(a = 1) {}          (default parameters)
+Esse arquivo orquestra quais sub-skills consultar para cada tipo de artefato.
+
+---
+
+## 4. Estrutura do repositório
+
 ```
-
-### 4.2 Estilo e Organização
-- Prefixos por módulo: `wg_` (widget), `ds_` (dataset), `st_` (serviceTask), `evt_` (evento)
-- Front-end: namespace/IIFE, sem variáveis globais
-- Delegação de eventos: `$(document).on(...)` quando DOM é dinâmico
-
-### 4.3 Performance
-- Minimizar chamadas repetidas de dataset (cache local quando fizer sentido)
-- Reduzir manipulação de DOM em loop (montar HTML e inserir uma vez)
-- Debounce em filtros e buscas no front
-- Não carregar colunas desnecessárias no dataset
-- Usar `sqlLimit` e `offset` para paginação em volumes altos
-
-### 4.4 Segurança e Robustez
-- Validar entradas (campos, constraints, parâmetros)
-- Sanitizar/escapar conteúdo exibido em HTML para evitar XSS
-- try/catch em integrações com mensagens claras
-- NUNCA usar eval ou práticas inseguras
-
-### 4.5 Logs e Rastreabilidade
-- Server-side: `log.info()` e `log.error()` com contexto (processId, atividade, usuário)
-- Front-end: `console.log` apenas com chave de debug
-- Integrações: sempre registrar requestId/protocolo e status
-
----
-
-## 5) Formato Padrão das Respostas
-
-Sempre responder em **português (Brasil)**, com linguagem profissional e objetiva:
-
-1. **Resumo executivo** (o que vai ser feito e por quê)
-2. **Premissas e entradas necessárias** (somente o mínimo)
-3. **Implementação** (passo a passo)
-4. **Código** (quando aplicável, pronto para colar)
-5. **Plano de testes** (casos e validações)
-6. **Riscos e mitigação** (curto e direto)
-
----
-
-## 6) Templates de Coleta e Entrega
-
-### Template de coleta mínima (quando faltar dado)
-- Versão/ambiente do Fluig (cloud/on-prem, se souber)
-- Tipo de artefato: widget/dataset/workflow/serviceTask
-- Objetivo da regra
-- Campos envolvidos (IDs) + atividades (números) + prints/erros
-- Amostra do retorno do dataset/serviço (2–5 linhas) quando existir
-
-### Template de entrega (sempre)
-- "Onde alterar"
-- "O que alterar"
-- "Como validar"
-- "Como publicar"
-
----
-
-## 7) Diretrizes para Soluções "Nível Empresa"
-
-Quando houver trade-off relevante, apresente:
-- **Abordagem A**: mais rápida (quando usar)
-- **Abordagem B**: mais robusta/escala (quando usar)
-
----
-
-## 8) Critérios de Qualidade (não negociáveis)
-
-A solução só é "pronta" se:
-- Funciona no contexto do Fluig (ES5 onde necessário)
-- Tem tratamento de erro e mensagens claras
-- Possui plano de teste mínimo
-- Evita práticas que quebram performance ou segurança
-- Mantém o padrão visual e de UX do Fluig (quando front)
-
----
-
-## 9) Instrução de Fallback para TDN
-
-Quando a skill não cobrir um cenário específico, o Claude DEVE:
-1. Buscar na TDN via web search com query: `site:tdn.totvs.com fluig [termo]`
-2. Consultar o arquivo `references/links-tdn.md` para encontrar o link mais relevante
-3. Informar ao usuário a fonte consultada
-
-
----
-
-
-# Bloco 1 — Datasets Fluig
-
-## Conceito
-
-Dataset é o componente que padroniza o acesso a informações no Fluig, independente da origem dos dados. Permite apresentar/processar informações de: dados da plataforma (usuários, grupos, papéis, tarefas), dados de formulários, dados externos (ERP), e valores fixos (listas).
-
-## Tipos de Datasets
-
-### 1. Internos
-Acessam dados das entidades da plataforma (usuários, grupos, processos, tarefas) e dados de formulários publicados. Cada formulário criado gera um dataset interno automaticamente.
-
-### 2. Simples (antigo "gerado")
-Consulta dados via API de forma simplificada, sem codificação. Ex: extração de dados de WebService externo. Basta informar endereço e método.
-
-### 3. Avançados (antigo "customizado")
-Customização do dataset simples via codificação JavaScript (Rhino ES5). Ex: lista de valores fixos, lógica de transformação.
-
-> **Nomenclatura "simples" e "avançados" adotada a partir da atualização 1.6.5.**
-
----
-
-## DatasetFactory — API Principal
-
-### Método getDataset
-```javascript
-var dataset = DatasetFactory.getDataset(nomeDataset, campos, constraints, ordenacao);
-```
-
-**Parâmetros:**
-- `nomeDataset` (String) — Nome do dataset
-- `campos` (Array|null) — Campos a retornar. null = todos
-- `constraints` (Array|null) — Filtros. null = todos os registros
-- `ordenacao` (Array|null) — Campos para ordenar. null = ordem padrão
-
-### Método createConstraint
-```javascript
-var c = DatasetFactory.createConstraint(campo, valorInicial, valorFinal, tipo);
-```
-
-**Parâmetros:**
-- `campo` (String) — Nome do campo a filtrar
-- `valorInicial` (String) — Valor inicial do filtro
-- `valorFinal` (String) — Valor final (faixa). Mesmo valor = filtro exato
-- `tipo` — Tipo da condição:
-  - `ConstraintType.MUST` — Todos os registros DEVEM satisfazer
-  - `ConstraintType.SHOULD` — Registros PODEM satisfazer (OR lógico entre SHOULDs)
-  - `ConstraintType.MUST_NOT` — Nenhum registro pode satisfazer
-
-### Like Search
-```javascript
-var c5 = DatasetFactory.createConstraint("campo", "%termo%", "%termo%", ConstraintType.MUST);
-c5.setLikeSearch(true);
-```
-Via vcXMLRPC.js (front-end), usar 5º parâmetro:
-```javascript
-var c5 = DatasetFactory.createConstraint("campo", "%termo%", "%termo%", ConstraintType.MUST_NOT, true);
+fluig-accelerator/
+│
+├── CLAUDE.md                          ← VOCÊ ESTÁ AQUI
+│
+├── skill-fluig/
+│   ├── SKILL-FLUIG.md                 ← orquestrador geral (leia PRIMEIRO)
+│   ├── skills/
+│   │   ├── 01-form.md                 ← padrões de formulário HTML
+│   │   ├── 02-form-events.md          ← displayFields, validateForm, enableFields, inputFields
+│   │   ├── 03-process-events.md       ← beforeTaskSave, afterProcessCreate, hAPI
+│   │   ├── 04-datasets.md             ← datasets customizados ES5/Rhino
+│   │   ├── 05-widgets.md              ← widgets, SuperWidget, view.ftl, application.js
+│   │   └── 06-service-tasks.md        ← integrações REST/SOAP, ServiceManager
+│
+├── templates/                         ← templates base para acelerar criação
+│   ├── form/                          ← HTML de formulário padrão
+│   ├── widget/                        ← estrutura de widget padrão
+│   ├── dataset/                       ← dataset customizado padrão
+│   └── events/                        ← eventos de formulário e processo
+│
+├── snippets/                          ← trechos reutilizáveis
+├── prompts-mestres/                   ← prompts otimizados para tarefas comuns
+└── docs/                              ← documentação complementar
 ```
 
 ---
 
-## Constraints Especiais
+## 5. Protocolo de atendimento
 
-### sqlLimit — Limitar registros
-```javascript
-DatasetFactory.createConstraint("sqlLimit", "100", "100", ConstraintType.MUST);
+Ao receber um pedido de desenvolvimento Fluig, siga estas etapas:
+
+### Etapa 1 — Diagnóstico
+
+Antes de escrever código, valide:
+
+- **Tipo de artefato**: formulário, dataset, workflow, widget, serviceTask?
+- **Campos envolvidos**: IDs (`nome___1`, `valor___2`), tipos, obrigatoriedade
+- **Atividades do processo**: números e nomes (ex.: atividade 2 = Aprovação Gestor)
+- **Regras de visibilidade**: quais painéis/campos mostrar/ocultar em cada atividade
+- **Evidência do problema** (se for correção): erro no console, log do servidor, print, payload
+
+Se faltar dado essencial, pergunte de forma objetiva usando o template:
+
 ```
-> O valor considerado é sempre o `initialValue`.
-
-### offset — Paginação
-```javascript
-DatasetFactory.createConstraint("offset", "10", "10", ConstraintType.MUST);
+Para gerar a solução preciso de:
+1. [dado que falta]
+2. [dado que falta]
+Enquanto isso, já posso adiantar [o que for possível].
 ```
-Ignora os primeiros N registros. Usar junto com sqlLimit para paginar.
 
-### onlyMainCards — Apenas formulário principal
-```javascript
-DatasetFactory.createConstraint("onlyMainCards", "true", "true", ConstraintType.MUST);
-```
-Retorna apenas dados do formulário principal (sem filhos). Padrão: false.
+### Etapa 2 — Hipóteses (se for diagnóstico)
 
-### checkSecurity — Respeitar segurança
-```javascript
-DatasetFactory.createConstraint("checkSecurity", "true", "true", ConstraintType.MUST);
-```
-Retorna apenas registros que o usuário tem permissão para visualizar. Apenas para datasets de formulário.
+Liste 2–5 hipóteses prováveis com forma de confirmar cada uma.
 
-> **IMPORTANTE**: Constraints são aplicáveis apenas a datasets internos. Em datasets avançados, o desenvolvedor precisa implementar o filtro no código.
+### Etapa 3 — Solução implementável
 
----
+- Indicar **onde** colocar o código (arquivo, evento, pasta)
+- Entregar código **completo e funcional**
+- Notas sobre dependências, permissões e cache
 
-## Navegação no Retorno do Dataset
+### Etapa 4 — Testes e publicação
 
-```javascript
-// Quantidade de linhas
-dataset.rowsCount
-
-// Valor de uma célula
-dataset.getValue(indiceLinha, "nomeCampo")
-
-// Nome de uma coluna
-dataset.getColumnName(indiceColuna)
-
-// Todas as colunas (front-end via vcXMLRPC)
-dataset.columns       // Array de nomes
-dataset.values        // Array de objetos {coluna: valor}
-dataset.values[i]["nomeCampo"]
-```
+- Cenários: caminho feliz, erro, borda
+- Checklist: exportar/publicar, limpar cache, verificar permissões, testar em cada atividade
 
 ---
 
-## Acesso a Datasets por Contexto
+## 6. Quando houver trade-off
 
-### Server-side (eventos, datasets, ServiceTask)
-```javascript
-var dataset = DatasetFactory.getDataset("nomeDataset", null, null, null);
-for (var i = 0; i < dataset.rowsCount; i++) {
-    log.info(dataset.getValue(i, "campo"));
-}
-```
+Sempre que existir trade-off relevante, apresente duas abordagens:
 
-### Front-end (formulários/widgets via vcXMLRPC.js)
-Incluir no HTML antes do body:
-```html
-<script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
-```
-```javascript
-var dataset = DatasetFactory.getDataset("colleague", null, null, null);
-// dataset.columns = array de nomes de colunas
-// dataset.values = array de registros
-for (var x = 0; x < dataset.values.length; x++) {
-    var row = dataset.values[x];
-    var valor = row["colleagueName"];
-}
-```
-
-### Via tag HTML (select com dataset)
-```html
-<select name="estado" dataset="estadosBR" datasetkey="Sigla" datasetvalue="Estado"></select>
-```
-Propriedades: `dataset` (nome), `datasetkey` (coluna do value), `datasetvalue` (coluna do label).
-
-### Via API REST
-```
-GET /dataset/api/v2/datasets/{datasetId}
-```
-Parâmetros: `field`, `offset`, `limit`, `orderby`, `constraintsField`, `constraintsInitialValue`, `constraintsFinalValue`, `constraintsType`.
-
-### Via DataTable (widget)
-```javascript
-var datasetReturned = DatasetFactory.getDataset("colleague", null, null, null);
-if (datasetReturned != null && datasetReturned.values != null && datasetReturned.values.length > 0) {
-    var records = datasetReturned.values;
-    for (var index in records) {
-        var record = records[index];
-        // usar record.campo
-    }
-}
-```
+- **Abordagem A** — mais rápida/simples (quando usar)
+- **Abordagem B** — mais robusta/escalável (quando usar)
 
 ---
 
-## Estrutura de um Dataset Avançado
-
-```javascript
-function createDataset(fields, constraints, sortFields) {
-    // 1. Criar o dataset com as colunas
-    var dataset = DatasetBuilder.newDataset();
-    dataset.addColumn("coluna1");
-    dataset.addColumn("coluna2");
-    dataset.addColumn("status");
-
-    try {
-        // 2. Lógica de dados (API, cálculo, fixo, etc)
-        
-        // 3. Adicionar linhas
-        dataset.addRow(new Array("valor1", "valor2", "OK"));
-        
-    } catch (e) {
-        dataset.addRow(new Array("", "", "ERRO: " + e.message));
-        log.error("ds_meuDataset - Erro: " + e.message);
-    }
-
-    return dataset;
-}
-```
-
-### Lendo constraints recebidas
-```javascript
-function createDataset(fields, constraints, sortFields) {
-    var dataset = DatasetBuilder.newDataset();
-    dataset.addColumn("resultado");
-
-    var filtro = "";
-    if (constraints != null) {
-        for (var i = 0; i < constraints.length; i++) {
-            if (constraints[i].fieldName == "meuFiltro") {
-                filtro = constraints[i].initialValue;
-            }
-        }
-    }
-
-    dataset.addRow(new Array("Filtro recebido: " + filtro));
-    return dataset;
-}
-```
-
----
-
-## Sincronização de Datasets
-
-Datasets de fontes externas podem ser sincronizados para reduzir acessos. Configurável via Painel de Controle > Datasets.
-
----
-
-## Datasets Internos Úteis
-
-| Dataset | Descrição |
-|---------|-----------|
-| `colleague` | Usuários da plataforma |
-| `colleagueGroup` | Relação usuário-grupo |
-| `group` | Grupos de usuários |
-| `role` | Papéis |
-| `document` | Documentos do GED |
-| `workflowProcess` | Processos workflow |
-
-> Para a lista completa, consultar: https://tdn.totvs.com/display/public/fluig/Datasets+internos
-
----
-
-## Boas Práticas
-
-1. **Sempre definir sqlLimit** em datasets de formulário com muitos registros
-2. **Usar campos específicos** em vez de null para economizar tráfego
-3. **Constraints em datasets avançados** devem ser tratadas no código — não são automáticas
-4. **Não passar SELECT via constraint** (bloqueado desde 1.6.5)
-5. **Cache local** em widgets que consultam o mesmo dataset múltiplas vezes
-6. **checkSecurity** quando os dados forem sensíveis
-
-
----
-
-
-# Bloco 2 — Eventos de Processo + hAPI + getValue + globalVars
-
-## Conceito
-
-Eventos de processo são scripts JavaScript (Rhino ES5) chamados durante a execução do workflow em momentos predeterminados. Criados via Fluig Studio como "Script evento workflow".
-
----
-
-## Catálogo Completo de Eventos
-
-### Eventos de Ciclo de Vida do Processo
-
-| Evento | Quando dispara | Parâmetros | Pode bloquear? |
-|--------|---------------|------------|----------------|
-| `afterReleaseVersion` | Após liberar nova versão do processo | processXML (string) | Não |
-| `afterProcessCreate` | Após criar nova solicitação | processId (Integer) | Não |
-| `afterProcessFinish` | Após finalizar solicitação | processId (Integer) | Não |
-| `beforeCancelProcess` | Antes de cancelar solicitação | colleagueId (String), processId (Integer) | Sim (throw) |
-| `afterCancelProcess` | Após cancelar solicitação | colleagueId (String), processId (Integer) | Não (não disparar exceções) |
-| `subProcessCreated` | Quando sub-processo é criado | subProcessId (Integer) | Não |
-
-### Eventos de Atividade
-
-| Evento | Quando dispara | Parâmetros | Pode bloquear? |
-|--------|---------------|------------|----------------|
-| `beforeStateEntry` | ANTES de entrar em nova atividade | sequenceId (Integer) | **Sim (throw)** |
-| `afterStateEntry` | Após entrar em nova atividade | sequenceId (Integer) | Não (erros ignorados) |
-| `beforeStateLeave` | Antes de sair de uma atividade | sequenceId (Integer) | Sim |
-| `afterStateLeave` | Após sair de uma atividade | sequenceId (Integer) | Não |
-
-### Eventos de Tarefa
-
-| Evento | Quando dispara | Parâmetros | Pode bloquear? |
-|--------|---------------|------------|----------------|
-| `beforeTaskCreate` | Antes de o usuário receber tarefa | colleagueId (String) | Sim (throw) |
-| `afterTaskCreate` | Após usuário receber tarefa | colleagueId (String) | Não |
-| `beforeTaskSave` | Antes de salvar informações | colleagueId, nextSequenceId (Integer), userList (List) | **Sim (throw)** |
-| `afterTaskSave` | Após salvar informações | colleagueId, nextSequenceId, userList | Não |
-| `beforeTaskComplete` | Antes de completar tarefa | colleagueId, nextSequenceId, userList | **Não bloqueia** (diferente dos outros before) |
-| `afterTaskComplete` | Após completar tarefa | colleagueId, nextSequenceId, userList | Não |
-
-### Eventos Especiais
-
-| Evento | Quando dispara | Parâmetros |
-|--------|---------------|------------|
-| `validateAvailableStates` | Após montar lista de atividades disponíveis | iCurrentState (Integer), stateList (List<Integer>) |
-| `checkComplementsPermission` | Ao verificar permissão de complementos | (nenhum) — retorna true/false |
-| `beforeSendData` | Último evento, integração com Analytics | (nenhum) |
-| `onNotify` | Após movimentação, antes de notificações | (evento global) |
-
----
-
-## Ordem de Execução dos Eventos
-
-### Criar nova solicitação (botão Enviar)
-1. `beforeStateEntry` → 2. `beforeTaskCreate` → 3. `afterTaskCreate` → 4. `afterStateEntry` → 5. `beforeSendData` → 6. `validateAvailableStates` → 7. `beforeTaskSave` → 8. `afterTaskSave` → 9. `beforeTaskComplete` → 10. `afterTaskComplete` → 11. `beforeStateLeave` → 12. `afterStateLeave` → 13. `afterProcessCreate` → 14. `onNotify`
-
-### Movimentar solicitação (botão Enviar)
-1. `validateAvailableStates` → 2. `beforeTaskSave` → 3. `afterTaskSave` → 4. `beforeTaskComplete` → 5. `afterTaskComplete` → 6. `beforeStateLeave` → 7. `afterStateLeave` → 8. `beforeStateEntry` → 9. `beforeTaskCreate` → 10. `afterTaskCreate` → 11. `afterStateEntry` → 12. `beforeSendData` → 13. `onNotify`
-
-### Salvar solicitação (botão Salvar)
-1. `validateAvailableStates` → 2. `beforeTaskSave` → 3. `afterTaskSave`
-
-### Finalizar solicitação
-1. `validateAvailableStates` → 2. `beforeTaskSave` → 3. `afterTaskSave` → 4. `beforeTaskComplete` → 5. `afterTaskComplete` → 6. `beforeStateLeave` → 7. `afterStateLeave` → 8. `beforeStateEntry` → 9. `afterStateEntry` → 10. `afterProcessFinish` → 11. `beforeSendData`
-
-### Cancelar solicitação
-1. `beforeCancelProcess` → 2. `afterCancelProcess` → 3. `beforeSendData` → 4. `onNotify`
-
----
-
-## getValue — Parâmetros da Solicitação
-
-```javascript
-var valor = getValue("PARAMETRO");
-```
-
-| Parâmetro | Descrição | Tipo |
-|-----------|-----------|------|
-| `WKDef` | Código do processo | String |
-| `WKVersDef` | Versão do processo | String |
-| `WKNumProces` | Número da solicitação | String |
-| `WKNumState` | Número da atividade atual | String |
-| `WKCompany` | Número da empresa | long |
-| `WKUser` | Código do usuário corrente | String |
-| `WKUserComment` | Complementos/observações da atividade corrente | String |
-| `WKCompletTask` | Tarefa completada ("true"/"false") | String |
-| `WKNextState` | Número da próxima atividade | String |
-| `WKCardId` | Código do registro de formulário | String |
-| `WKFormId` | Código do formulário | String |
-| `WKIdentityCompany` | Empresa selecionada no Identity | String |
-| `WKMobile` | Ação via mobile | String |
-| `WKIsService` | Cancelamento via serviço (apenas beforeCancelProcess/afterCancelProcess) | String |
-| `WKUserLocale` | Idioma do usuário | String |
-| `WKManagerMode` | Movimentando como gestor (true/false) | String |
-| `WKReplacement` | Código do usuário substituto | String |
-| `WKIsTransfer` | Transferência de tarefa | String |
-| `WKCurrentMovto` | Movimentação do processo | String |
-| `WKActualThread` | Thread atual do processo | String |
-
----
-
-## globalVars — Variáveis Globais entre Eventos
-
-Mapa (Map<String, String>) disponível em **todos os eventos** de uma mesma movimentação.
-
-```javascript
-// Setar valor
-globalVars.put("WDAprovador", "adm");
-
-// Recuperar valor
-var aprovador = globalVars.get("WDAprovador");
-```
-
----
-
-## hAPI — Métodos Disponíveis
-
-### Manipulação de Formulário
-```javascript
-hAPI.getCardValue("nomeCampo")         // Retorna valor do campo
-hAPI.setCardValue("nomeCampo", "valor") // Define valor do campo
-hAPI.getCardData(numProcesso)          // Retorna Map com todos os campos/valores
-```
-
-> **Checkbox**: retorna "on" (marcado) ou "" (vazio).
-> Converter: `var check = hAPI.getCardValue("campo") == "on" ? true : false;`
-
-### Pai-Filho
-```javascript
-hAPI.getChildrenIndexes("nomeTabela")        // Retorna array de índices das linhas filhas
-hAPI.addCardChild("nomeTabela", mapaValores) // Adiciona linha filha
-hAPI.removeCardChild("nomeTabela", indice)   // Remove linha filha (cuidado com reindex!)
-
-// Leitura de campos filhos
-var indexes = hAPI.getChildrenIndexes("itens");
-for (var i = 0; i < indexes.length; i++) {
-    var valor = hAPI.getCardValue("descricao___" + indexes[i]);
-}
-```
-
-> **removeCardChild**: ao remover, os índices são reindexados. Excluir de trás para frente:
-```javascript
-var indexes = hAPI.getChildrenIndexes("tableName");
-for (var i = indexes.length - 1; i >= 0; i--) {
-    hAPI.removeCardChild("tableName", indexes[i]);
-}
-```
-
-### Controle de Fluxo
-```javascript
-hAPI.getActiveStates()                    // Lista atividades ativas
-hAPI.startProcess(processId, ativDest, listaColab, obs, completar, valoresForm, modoGestor)
-hAPI.setColleagueReplacement("userId")    // Setar substituto
-```
-
-### Prazos
-```javascript
-hAPI.setDueDate(numProcesso, numThread, "userId", dataConclusao, tempoSeg)
-hAPI.calculateDeadLineHours(data, segundos, prazo, periodId)  // Retorna [data, segundos]
-hAPI.calculateDeadLineTime(data, segundos, prazo, periodId)   // Prazo em minutos
-```
-
-### Anexos
-```javascript
-hAPI.listAttachments()                  // Retorna DocumentDto[]
-hAPI.publishWorkflowAttachment(doc)     // Publica anexo no GED
-hAPI.attachDocument(documentId)         // Anexa doc do GED à solicitação
-```
-
-### Observações
-```javascript
-hAPI.setTaskComments("userId", numProcesso, numThread, "obs")
-```
-> Usar em eventos "after" pois precisa que a movimentação já exista.
-
-### Links e Notificações
-```javascript
-hAPI.getUserTaskLink(numAtiv)  // Retorna link para movimentação da atividade
-```
-> Não funciona para atividades que ainda não foram criadas.
-
-### Sub-processos e Hierarquia
-```javascript
-hAPI.getChildrenInstances(processInstanceId)  // Lista solicitações filhas
-hAPI.getParentInstance(processInstanceId)      // Número da solicitação pai
-```
-
-### Ad-hoc
-```javascript
-hAPI.createAdHocTasks(processId, sequenceId, assunto, detalhe, listaAtividades)
-```
-
-### Propriedades Avançadas
-```javascript
-hAPI.getAdvancedProperty("propriedade")
-```
-
----
-
-## Padrões de Código Comuns
-
-### Validação no beforeTaskSave
-```javascript
-function beforeTaskSave(colleagueId, nextSequenceId, userList) {
-    var completTask = getValue("WKCompletTask");
-    var campo = hAPI.getCardValue("nome");
-    
-    if (completTask == "true" && (campo == null || campo == "")) {
-        throw "Campo 'Nome' é obrigatório para movimentar a solicitação!";
-    }
-}
-```
-
-### Decisão por atividade no beforeStateEntry
-```javascript
-function beforeStateEntry(sequenceId) {
-    if (sequenceId == 5) {
-        var aprovado = hAPI.getCardValue("aprovado");
-        if (aprovado != "sim") {
-            throw "Solicitação não pode avançar sem aprovação.";
-        }
-    }
-}
-```
-
-### Impedir transferência
-```javascript
-function beforeTaskCreate(colleagueId) {
-    var isTransfer = getValue("WKIsTransfer");
-    if (isTransfer !== null && JSON.parse(isTransfer)) {
-        throw "Não é permitido transferir esta atividade!";
-    }
-}
-```
-
----
-
-## Links TDN Relacionados
-- Eventos de Processos: https://tdn.totvs.com/display/public/fluig/Eventos+de+Processos
-- hAPI: https://tdn.totvs.com/display/public/fluig/hAPI
-- Método getValue: https://tdn.totvs.com/pages/releaseview.action?pageId=270919174
-- Desenvolvimento de Eventos: https://tdn.totvs.com/display/public/fluig/Desenvolvimento+de+Eventos
-
-
----
-
-
-# Bloco 3 — Formulários Fluig
-
-## Conceito
-
-Formulários no Fluig são definições de formulário (HTML) que podem ser usados tanto como documentos independentes (GED) quanto vinculados a processos workflow. Cada formulário publicado gera automaticamente um dataset interno.
-
----
-
-## Estrutura Básica de um Formulário
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Meu Formulário</title>
-    <!-- vcXMLRPC para acesso a datasets no front -->
-    <script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
-</head>
-<body>
-    <form name="meuFormulario">
-        <!-- Campos do formulário -->
-        <input type="text" name="nome" id="nome" />
-        <input type="hidden" name="campo_oculto" id="campo_oculto" />
-        
-        <!-- Select com dataset -->
-        <select name="estado" dataset="estadosBR" datasetkey="Sigla" datasetvalue="Estado"></select>
-        
-        <!-- Tabela pai-filho -->
-        <table tablename="itens">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Descrição</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><input type="text" name="codigo" /></td>
-                    <td><input type="text" name="descricao" /></td>
-                </tr>
-            </tbody>
-        </table>
-    </form>
-</body>
-</html>
-```
-
-### Regras importantes:
-- O `name` do campo é o identificador usado em hAPI.getCardValue(), datasets de formulário e constraints
-- Campos `hidden` são úteis para armazenar dados de controle
-- A tag `<form>` com `name` é obrigatória
-- O atributo `tablename` na `<table>` define o nome da tabela filha no pai-filho
-
----
-
-## Formulário Pai x Filho
-
-O padrão pai-filho usa tabelas HTML com `tablename`. Os campos filhos são nomeados com sufixo `___N` (3 underlines + índice sequencial).
-
-### Acesso via hAPI (server-side)
-```javascript
-// Obter índices das linhas filhas
-var indexes = hAPI.getChildrenIndexes("itens");
-
-var total = 0;
-for (var i = 0; i < indexes.length; i++) {
-    var valor = parseInt(hAPI.getCardValue("quantidade___" + indexes[i]));
-    if (isNaN(valor)) { valor = 0; }
-    total = total + valor;
-}
-
-// Adicionar linha filha
-var childData = new java.util.HashMap();
-childData.put("codigo", "001");
-childData.put("descricao", "Item Novo");
-hAPI.addCardChild("itens", childData);
-
-// Remover linha filha (de trás para frente!)
-var indexes = hAPI.getChildrenIndexes("itens");
-for (var i = indexes.length - 1; i >= 0; i--) {
-    hAPI.removeCardChild("itens", indexes[i]);
-}
-```
-
-### Acesso via hAPI.getCardData
-```javascript
-var cardData = hAPI.getCardData(numProcesso);
-// Retorna: campo___1, campo___2, etc. para filhos
-// Ex: codItem___1 = "91", desItem___1 = "Caneta", qtdItem___1 = "100"
-```
-
-> **getChildrenIndexes só funciona a partir da segunda atividade** (dados precisam ter sido salvos).
-
----
-
-## FormController
-
-Objeto disponível nos eventos de personalização de formulário. Permite comunicação entre formulário e personalização.
-
-### Métodos principais
-```javascript
-form.getCompanyId()     // Código da empresa
-form.getDocumentId()    // Código do documento
-form.getVersion()       // Versão do registro
-form.getCardIndex()     // Código do formulário
-form.getValue("campo")  // Valor de um campo
-```
-
-### Eventos de formulário onde FormController está disponível
-- `displayFields` — Personalização de exibição dos campos
-- `enableFields` — Habilitar/desabilitar campos
-- `inputFields` — Manipulação de valores
-- `validateForm` — Validação antes de salvar
-
-> Para mais detalhes: https://tdn.totvs.com/display/public/fluig/FormController
-
----
-
-## Data-zoom
-
-Componente que permite pesquisa e seleção de registros de datasets em campos de formulário.
-
-### Configuração via HTML
-```html
-<input type="text" name="campo" 
-       data-zoom='{
-           "datasetId": "colleague",
-           "filterValues": "colleagueName",
-           "resultFields": ["colleagueId", "colleagueName"],
-           "displayKey": "colleagueName"
-       }' />
-```
-
-> Para documentação completa: https://tdn.totvs.com/display/public/fluig/Data-zoom
-
----
-
-## Select com Dataset (via tag)
-
-```html
-<select name="estado" dataset="estadosBR" datasetkey="Sigla" datasetvalue="Estado"></select>
-```
-
-| Atributo | Descrição |
-|----------|-----------|
-| `dataset` | Nome do dataset |
-| `datasetkey` | Coluna usada como value do option |
-| `datasetvalue` | Coluna usada como label do option |
-
----
-
-## Acesso a Dataset no Formulário (via JS)
-
-```html
-<script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
-<script>
-function carregarDados() {
-    try {
-        var dataset = DatasetFactory.getDataset("meuDataset", null, null, null);
-        for (var x = 0; x < dataset.values.length; x++) {
-            var row = dataset.values[x];
-            // row["nomeCampo"]
-        }
-    } catch (erro) {
-        console.error("Erro ao carregar dataset: " + erro);
-    }
-}
-</script>
-```
-
-> **Cuidado com volume**: este modelo transporta dados do servidor para o navegador. Usar constraints e sqlLimit.
-
----
-
-## Links TDN Relacionados
-- Desenvolvimento de Formulários: https://tdn.totvs.com/pages/releaseview.action?pageId=75270483
-- FormController: https://tdn.totvs.com/display/public/fluig/FormController
-- Data-zoom: https://tdn.totvs.com/display/public/fluig/Data-zoom
-- Eventos de Formulário: https://tdn.totvs.com/pages/releaseview.action?pageId=270921008
-- Lidando com List no Rhino: https://tdn.totvs.com/display/public/fluig/Lidando+com+List+%28List%29+no+Rhino
-- Lidando com Map no Rhino: https://tdn.totvs.com/display/public/fluig/Lidando+com+Mapa+%28Map%29+no+Rhino
-- Lidando com Object no Rhino: https://tdn.totvs.com/display/public/fluig/Lidando+com+Objetos+%28Object%29+no+Rhino
-
-
----
-
-
-# Bloco 4 — Widgets / WCM
-
-## Conceito
-
-Widgets são componentes visuais reutilizáveis que compõem as páginas do portal Fluig. Cada widget é um pacote com HTML (FreeMarker .ftl), CSS, JS e configuração (application.info).
-
----
-
-## Estrutura de uma Widget
-
-```
-minha-widget/
-├── src/main/
-│   ├── webapp/
-│   │   ├── resources/
-│   │   │   ├── css/
-│   │   │   │   └── minha-widget.css
-│   │   │   ├── js/
-│   │   │   │   └── minha-widget.js
-│   │   │   └── images/
-│   │   └── WEB-INF/
-│   │       └── jboss-web.xml
-│   └── resources/
-│       ├── view.ftl          ← Template de visualização
-│       ├── edit.ftl           ← Template de edição (config)
-│       └── application.info   ← Metadados da widget
-```
-
----
-
-## application.info
-
-```properties
-application.type=widget
-application.title=Minha Widget
-application.description=Descrição da widget
-application.category=Categoria
-application.renderer=freemarker
-application.icon=icon-widget
-```
-
----
-
-## FreeMarker (FTL)
-
-Templates usam a engine FreeMarker para renderização server-side.
-
-### Variáveis disponíveis no FTL
-```ftl
-${instanceId}              <!-- ID único da instância da widget na página -->
-${WKUser}                  <!-- Código do usuário logado -->
-${WKCompany}               <!-- Código da empresa -->
-```
-
-### Exemplo view.ftl
-```ftl
-<div id="minha-widget_${instanceId}" class="wcm-widget-class">
-    <h3>Bem-vindo</h3>
-    <div id="conteudo_${instanceId}"></div>
-</div>
-
-<!-- Incluir vcXMLRPC para acesso a datasets -->
-<script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
-```
-
-### Exemplo edit.ftl
-```ftl
-<div id="minha-widget-edit_${instanceId}">
-    <label>Título:</label>
-    <input type="text" name="titulo" value="${titulo!}" />
-</div>
-```
-
----
-
-## JavaScript da Widget (padrão Fluig)
-
-```javascript
-var MinhaWidget = SuperWidget.extend({
-
-    instanceId: null,
-
-    init: function() {
-        // Executado ao carregar a widget
-        this.loadData();
-    },
-
-    bindings: {
-        local: {
-            'btn-filtrar': ['click_filtrar']
-        }
-    },
-
-    filtrar: function(htmlElement, event) {
-        var that = this;
-        // Lógica de filtro
-    },
-
-    loadData: function() {
-        var that = this;
-        var dataset = DatasetFactory.getDataset("meuDataset", null, null, null);
-        
-        if (dataset != null && dataset.values != null) {
-            var html = "";
-            for (var i = 0; i < dataset.values.length; i++) {
-                var row = dataset.values[i];
-                html += "<tr><td>" + row["campo"] + "</td></tr>";
-            }
-            $("#tabela_" + that.instanceId + " tbody").html(html);
-        }
-    }
-});
-```
-
-### Padrão de bindings
-```javascript
-bindings: {
-    local: {
-        'nome-do-data-action': ['evento_metodo']
-        // 'btn-salvar': ['click_salvar']
-    }
-}
-```
-No HTML: `<button data-action="btn-salvar">Salvar</button>`
-
----
-
-## WCMAPI — Biblioteca Client-Side
-
-### Métodos principais
-```javascript
-WCMAPI.version                    // Versão do Fluig (ex: "1.6.2")
-WCMAPI.serverURL                  // URL do servidor (ex: "http://empresa.fluig.com:8080")
-WCMAPI.getServerURL()             // Mesmo que serverURL
-WCMAPI.organizationId             // ID do tenant
-WCMAPI.tenantCode                 // Código do tenant
-WCMAPI.serverContextURL           // Raiz do portal ("/portal")
-WCMAPI.getProtectedContextPath()  // Path protegido ("/portal/p")
-```
-
-### Requisições
-```javascript
-WCMAPI.Create({
-    url: '/api/public/ecm/dataset/...',
-    contentType: "application/json",
-    dataType: "json",
-    type: "GET",
-    success: function(data) {
-        // processar resposta
-    },
-    error: function(err) {
-        WCMAPI.failHandler(err, true); // Alerta detalhado
-    }
-});
-```
-
-### Comunicação entre Widgets
-```javascript
-// Widget A — disparar evento
-WCMAPI.fireEvent('atualizar-lista', dados);
-
-// Widget B — ouvir evento
-WCMAPI.addListener(this, 'atualizar-lista', function(evName, data) {
-    // reagir ao evento
-});
-```
-
-### Renderização Assíncrona de Widget
-```javascript
-WCMAPI.convertFtlAsync('nome-widget', 'nome-ftl', JSON.stringify(dados), function(html) {
-    $('#container').append(html);
-});
-```
-> **NUNCA usar WCMAPI.convertFtl** (síncrono — trava a UI).
-
-### Sessão
-```javascript
-WCMAPI.setSessionAttribute('FLAG', 'valor');
-WCMAPI.getSessionAttribute('FLAG');
-```
-
-### Logoff
-```javascript
-WCMAPI.logoff();
-```
-
-### ID Único
-```javascript
-var id = WCMAPI.generateId(); // "wcmid4", "wcmid5", etc.
-```
-
----
-
-## FLUIGC — Componentes Visuais
-
-### DataTable
-```javascript
-var myTable = FLUIGC.datatable('#tabela_' + instanceId, {
-    dataRequest: dados,
-    renderContent: ['id', 'nome', 'email'],
-    header: [
-        { 'title': 'Código', 'size': 'col-md-2' },
-        { 'title': 'Nome', 'standard': true, 'size': 'col-md-6' },
-        { 'title': 'Email', 'size': 'col-md-4' }
-    ],
-    search: { enabled: true },
-    scroll: { target: ".target", enabled: true },
-    actions: { enabled: false },
-    navButtons: { enabled: false },
-    draggable: { enabled: false }
-}, function(err, data) {
-    if (err) { FLUIGC.toast({ message: err, type: 'danger' }); }
-});
-```
-
-### Modal
-```javascript
-var modal = FLUIGC.modal('#modal_' + instanceId, {
-    title: 'Título',
-    content: '<p>Conteúdo</p>',
-    size: 'large',
-    actions: [{
-        label: 'Confirmar',
-        autoClose: true,
-        bind: 'click_confirmar'
-    }]
-});
-modal.show();
-```
-
-### Toast
-```javascript
-FLUIGC.toast({ message: 'Operação realizada!', type: 'success' });
-// Tipos: success, danger, warning, info
-```
-
----
-
-## Boas Práticas para Widgets
-
-1. **Sempre usar instanceId** para evitar conflito entre múltiplas instâncias na mesma página
-2. **IIFE ou SuperWidget.extend** — nunca poluir o escopo global
-3. **Delegação de eventos** — `$(document).on('click', '#btn_' + instanceId, fn)` para DOM dinâmico
-4. **Montar HTML e inserir uma vez** — evitar manipulação de DOM em loop
-5. **Debounce** em campos de busca e filtros
-6. **vcXMLRPC.js** necessário para DatasetFactory no front
-7. **Cache de dataset** — não chamar o mesmo dataset múltiplas vezes sem necessidade
-
----
-
-## Links TDN Relacionados
-- Widgets: https://tdn.totvs.com/display/public/fluig/Widgets
-- application.info: https://tdn.totvs.com/display/public/fluig/Arquivo+application.info
-- WCMAPI: https://tdn.totvs.com/display/public/fluig/WCMAPI
-- Central de componentes: https://tdn.totvs.com/display/public/fluig/Central+de+componentes
-- Eventos de Componentes: https://tdn.totvs.com/display/public/fluig/Eventos+de+Componentes
-- Style Guide: https://tdn.totvs.com/display/public/fluig/Guia+de+Estilos
-- Layouts: https://tdn.totvs.com/display/public/fluig/Layouts
-- Biblioteca WCM: https://tdn.totvs.com/display/public/fluig/Biblioteca+WCM
-- Cache em navegador: https://tdn.totvs.com/display/public/fluig/Cache+em+navegador+no+TOTVS+Fluig+Plataforma
-
-
----
-
-
-# Bloco 5 — Integrações (WebServices, ServiceManager, REST/SOAP)
-
-## Conceito
-
-O Fluig permite integração com sistemas externos via WebServices SOAP, API REST, e ServiceManager. Integrações podem ser feitas a partir de eventos de processo, datasets avançados e ServiceTasks.
-
----
-
-## ServiceManager — Consumo de WebServices SOAP
-
-### Pré-requisitos
-1. Cadastrar o serviço no Fluig: **Painel de Controle > Serviços**
-2. Informar o código do serviço, URL do WSDL e credenciais (se necessário)
-
-### Padrão de uso (server-side, Rhino ES5)
-```javascript
-// 1. Obter instância do serviço cadastrado
-var serviceProvider = ServiceManager.getServiceInstance("CodigoDoServico");
-
-// 2. Instanciar o locator (classe gerada pelo WSDL)
-var serviceLocator = serviceProvider.instantiate("com.exemplo.MinhaServiceLocator");
-
-// 3. Obter a porta/endpoint
-var service = serviceLocator.getMinhaServicePort();
-
-// 4. Chamar métodos do serviço
-var resultado = service.meuMetodo(parametro1, parametro2);
-```
-
-### Exemplo completo: iniciar solicitação via WebService
-```javascript
-function afterProcessFinish(processId) {
-    try {
-        var serviceProvider = ServiceManager.getServiceInstance("WorkflowEngineService");
-        var serviceLocator = serviceProvider.instantiate(
-            "com.totvs.technology.ecm.workflow.ws.ECMWorkflowEngineServiceService"
-        );
-        var service = serviceLocator.getWorkflowEngineServicePort();
-
-        var attachments = serviceProvider.instantiate(
-            "com.totvs.technology.ecm.workflow.ws.ProcessAttachmentDtoArray"
-        );
-        var objectFactory = serviceProvider.instantiate("net.java.dev.jaxb.array.ObjectFactory");
-        var cardData = objectFactory.createStringArrayArray();
-
-        service.simpleStartProcess("adm", "adm", 1, "processo2", "Comentário", attachments, cardData);
-        
-        log.info("Solicitação criada com sucesso via WS");
-    } catch (e) {
-        log.error("Erro ao iniciar solicitação via WS: " + e.message);
-    }
-}
-```
-
-### Dica: ObjectFactory
-Cada serviço WSDL gera uma classe ObjectFactory com métodos para instanciar objetos complexos. Consultar sempre a classe para saber quais objetos estão disponíveis.
-
----
-
-## Consumo de API REST (server-side)
-
-### Usando java.net (dentro de datasets/eventos)
-```javascript
-function createDataset(fields, constraints, sortFields) {
-    var dataset = DatasetBuilder.newDataset();
-    dataset.addColumn("resultado");
-    dataset.addColumn("status");
-
-    try {
-        var url = new java.net.URL("https://api.exemplo.com/dados");
-        var conn = url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Authorization", "Bearer TOKEN_AQUI");
-        conn.setConnectTimeout(5000);
-        conn.setReadTimeout(10000);
-
-        var responseCode = conn.getResponseCode();
-
-        if (responseCode == 200) {
-            var reader = new java.io.BufferedReader(
-                new java.io.InputStreamReader(conn.getInputStream(), "UTF-8")
-            );
-            var response = "";
-            var line;
-            while ((line = reader.readLine()) != null) {
-                response += line;
-            }
-            reader.close();
-
-            // Parsear JSON
-            var jsonObj = JSON.parse(response);
-            
-            for (var i = 0; i < jsonObj.length; i++) {
-                dataset.addRow(new Array(
-                    jsonObj[i].campo1,
-                    "OK"
-                ));
-            }
-        } else {
-            dataset.addRow(new Array("", "ERRO HTTP " + responseCode));
-        }
-
-        conn.disconnect();
-    } catch (e) {
-        dataset.addRow(new Array("", "ERRO: " + e.message));
-        log.error("ds_meuDataset - Erro REST: " + e.message);
-    }
-
-    return dataset;
-}
-```
-
-### POST com body JSON
-```javascript
-var url = new java.net.URL("https://api.exemplo.com/criar");
-var conn = url.openConnection();
-conn.setRequestMethod("POST");
-conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-conn.setDoOutput(true);
-
-var body = JSON.stringify({ campo1: "valor1", campo2: "valor2" });
-var os = conn.getOutputStream();
-var bytes = new java.lang.String(body).getBytes("UTF-8");
-os.write(bytes, 0, bytes.length);
-os.flush();
-os.close();
-
-var responseCode = conn.getResponseCode();
-// ... ler resposta
-```
-
----
-
-## ServiceTask (Atividade de Serviço)
-
-ServiceTask é uma atividade automática no diagrama BPMN que executa lógica server-side sem interação de usuário.
-
-### Configuração
-1. No diagrama, adicionar atividade do tipo "Serviço"
-2. Vincular ao código do serviço cadastrado
-3. Configurar mapeamento de entrada/saída
-
-### Uso com ServiceManager dentro de eventos
-O ServiceTask é frequentemente implementado via `beforeStateEntry` na atividade de serviço:
-```javascript
-function beforeStateEntry(sequenceId) {
-    if (sequenceId == 3) { // atividade de serviço
-        try {
-            // lógica de integração aqui
-            var resultado = chamarServicoExterno();
-            hAPI.setCardValue("resultado", resultado);
-        } catch (e) {
-            log.error("ServiceTask erro: " + e.message);
-            throw "Falha na integração: " + e.message;
-        }
-    }
-}
-```
-
----
-
-## Consumo de WS SOAP a partir de Widget (front-end)
-
-```javascript
-// No JS da widget
-var soapEnvelope = 
-    '<?xml version="1.0" encoding="UTF-8"?>' +
-    '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">' +
-    '<soapenv:Body>' +
-    '<meuMetodo>' +
-    '<parametro>valor</parametro>' +
-    '</meuMetodo>' +
-    '</soapenv:Body>' +
-    '</soapenv:Envelope>';
-
-WCMAPI.Create({
-    url: '/webdesk/ECMCardService?wsdl',
-    contentType: "text/xml; charset=utf-8",
-    dataType: "xml",
-    data: soapEnvelope,
-    type: "POST",
-    success: function(data) {
-        // Parsear XML de resposta
-    },
-    error: function(err) {
-        WCMAPI.failHandler(err, true);
-    }
-});
-```
-
----
-
-## API REST Pública do Fluig
-
-Base URL: `https://<servidor>/api/public/ecm/...`
-
-Swagger: https://api.fluig.com/latest/index.html
-
-### Endpoints principais
-| API | Swagger |
-|-----|---------|
-| Content Management | https://api.fluig.com/latest/content-management/swagger-ui/ |
-| Process Management | https://api.fluig.com/latest/process-management/swagger-ui/ |
-| Dataset | https://api.fluig.com/latest/dataset/swagger-ui/ |
-| Forms | https://api.fluig.com/latest/ecm-forms/swagger-ui/ |
-| Page Management | https://api.fluig.com/latest/page-management/swagger-ui/ |
-| Collaboration | https://api.fluig.com/latest/collaboration/swagger-ui/ |
-| Admin | https://api.fluig.com/latest/admin/swagger-ui/ |
-| Environment | https://api.fluig.com/latest/environment/swagger-ui/ |
-| Form Management | https://api.fluig.com/latest/form-management/swagger-ui/ |
-| Data Service | https://api.fluig.com/latest/dataservice/swagger-ui/ |
-
----
-
-## Boas Práticas de Integração
-
-1. **Sempre usar try/catch** com mensagem clara de erro
-2. **Definir timeouts** (connectTimeout e readTimeout) — nunca deixar padrão
-3. **Logar requestId/protocolo** e status de cada chamada
-4. **Validar resposta** antes de processar (status code, conteúdo)
-5. **Não expor credenciais** no código — usar parâmetros de serviço
-6. **Tratar encoding** UTF-8 explicitamente
-7. **Limitar retentativas** e implementar fallback quando possível
-
----
-
-## Links TDN Relacionados
-- WebServices: https://tdn.totvs.com/pages/releaseview.action?pageId=73084007
-- Consumo WS SOAP de Widget: https://tdn.totvs.com/display/public/fluig/Consumo+de+um+WS+SOAP+de+um+Widget
-- WS SOAP com Identity: https://tdn.totvs.com/display/public/fluig/Webservices+SOAP+com+Identity+habilitado
-- Fluig API: https://tdn.totvs.com/display/public/fluig/Fluig+API
-- Plataforma APIs: https://tdn.totvs.com/display/public/fluig/Plataforma+%7C+APIs
-- APIs SLA: https://tdn.totvs.com/display/public/fluig/APIs+SLA
-
-
----
-
-
-# Bloco 6 — Elementos BPMN no Fluig
-
-## Conceito
-
-O Fluig usa a notação BPMN 2.0 para modelagem de processos workflow. Os diagramas são criados no Fluig Studio e definem o fluxo de atividades, decisões e eventos.
-
----
-
-## Eventos Iniciais
-
-Representam o início de um processo.
-
-| Tipo | Descrição | Uso |
-|------|-----------|-----|
-| Evento de início simples | Inicia processo por ação do usuário | Padrão |
-| Evento de início por mensagem | Inicia processo por recebimento de mensagem | Integração |
-| Evento de início por timer | Inicia processo por agendamento | Processos periódicos |
-
-> Documentação: https://tdn.totvs.com/display/public/fluig/Eventos+Iniciais
-
----
-
-## Atividades Workflow
-
-| Tipo | Descrição |
-|------|-----------|
-| Atividade comum | Tarefa humana, requer ação do usuário |
-| Atividade de serviço (ServiceTask) | Tarefa automática, sem interação humana |
-| Sub-processo | Atividade que inicia outro processo |
-| Sub-processo ad-hoc | Atividade que permite criar tarefas ad-hoc |
-
-### Mecanismos de atribuição de atividades
-- Usuário fixo
-- Papel (Role): `Pool:Role:nomePapel`
-- Grupo: `Pool:Group:nomeGrupo`
-- Usuário do campo do formulário
-- Gestor do processo
-
-> Documentação: https://tdn.totvs.com/display/public/fluig/Atividades+Workflow
-
----
-
-## Gateways
-
-Controlam a divergência e convergência do fluxo.
-
-| Tipo | Símbolo | Comportamento |
-|------|---------|---------------|
-| Gateway Exclusivo (XOR) | Losango com X | Apenas UM caminho é seguido (baseado em condição) |
-| Gateway Paralelo (AND) | Losango com + | TODOS os caminhos são seguidos simultaneamente |
-| Gateway Inclusivo (OR) | Losango com O | UM OU MAIS caminhos podem ser seguidos |
-
-### Gateway Exclusivo — Scripts Condicionais
-O roteamento é definido por scripts condicionais nos fluxos de saída:
-```javascript
-// Exemplo de condição em fluxo de saída
-hAPI.getCardValue("aprovado") == "sim"
-```
-
-### Gateway Paralelo
-- Na divergência: cria threads paralelas
-- Na convergência: aguarda TODAS as threads concluírem
-
-> Documentação: https://tdn.totvs.com/display/public/fluig/Gateways
-
----
-
-## Fluxos
-
-Conectam os elementos do diagrama.
-
-| Tipo | Descrição |
-|------|-----------|
-| Fluxo de sequência | Conexão padrão entre atividades |
-| Fluxo condicional | Fluxo com script de condição (usado com Gateway Exclusivo) |
-| Fluxo padrão (default) | Caminho seguido quando nenhuma condição é atendida |
-
-### Scripts Condicionais
-```javascript
-// Em condições de fluxo do Gateway Exclusivo
-// Acesso via getValue ou hAPI
-getValue("WKNumState") == "3"
-hAPI.getCardValue("status") == "aprovado"
-```
-
-> Documentação: https://tdn.totvs.com/display/public/fluig/Fluxos
-> Scripts Condicionais: https://tdn.totvs.com/display/public/fluig/Scripts+Condicionais
-
----
-
-## Eventos Intermediários
-
-| Tipo | Descrição |
-|------|-----------|
-| Timer | Pausa a execução por tempo determinado |
-| Mensagem | Aguarda ou envia mensagem entre processos |
-
----
-
-## Eventos Finais
-
-| Tipo | Descrição |
-|------|-----------|
-| Evento de fim simples | Encerra o processo |
-| Evento de fim por terminação | Encerra o processo e cancela todas as threads ativas |
-
-> Documentação: https://tdn.totvs.com/display/public/fluig/Eventos+Finais+de+processo
-
----
-
-## Itens de Agrupamento e Dados
-
-| Elemento | Descrição |
-|----------|-----------|
-| Pool / Lane | Agrupamento visual de atividades por departamento/papel |
-| Data Object | Representação de dados utilizados no processo |
-| Anotação | Comentários visuais no diagrama |
-
-> Documentação: https://tdn.totvs.com/display/public/fluig/Itens+de+agrupamento+e+dados
-
----
-
-## Propriedades Avançadas de Processo
-
-### AutomaticTasks
-Propriedade que lista atividades com decisão automática:
-```
-AutomaticTasks=3,6,10
-```
-Usado junto com `hAPI.setAutomaticDecision()` no `beforeStateEntry`.
-
-### Thread de Processo
-Em processos com atividades paralelas, cada thread tem um número:
-- Thread 0: fluxo principal
-- Thread 1, 2, ...: fluxos paralelos
+## 7. Regra de ouro
+
+> **Não inventar APIs, nomes de serviços, campos ou retornos.**
+> Se faltar dado, solicitar o mínimo necessário para garantir precisão.
+> Todo código deve funcionar ao colar — sem adaptações manuais.
 
 > Documentação: https://tdn.totvs.com/display/public/fluig/Thread+de+Processo
 

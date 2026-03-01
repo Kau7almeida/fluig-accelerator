@@ -1,0 +1,30 @@
+.panel_info_solic, .panel_info_solic_filho {
+    padding: 16px;
+}
+
+.info_solic {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #EEECEC;
+    border-radius: 5px;
+
+    div {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+
+        p {
+            margin: 0;
+        }
+    }
+}
+
+.header_panel {
+    div {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+}

@@ -1,0 +1,51 @@
+<head>
+    <link rel="stylesheet" href="style.css">
+    <!-- Módulos (ordem de dependência) -->
+    <script src="modules/state-handlers.js"></script>
+    <!-- App Principal -->
+    <script src="app.js"></script>
+    <script defer type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
+</head>
+
+<form name="form" role="form">
+
+    <input type="hidden" name="hd_solic">
+    <input type="hidden" name="hd_email_solic">
+    <input type="hidden" name="hd_dth_solic">
+
+    <div class="panel panel-default panel_info_solic">
+
+        <div class="header_panel">
+            <strong>Solicitante</strong>
+            <hr>
+        </div>
+
+        <div class="panel panel-default panel_info_solic_filho">
+
+            <div class="header_panel">
+                <div>
+                    <i class="animaliaicon animaliaicon-info icon-md" aria-hidden="true"></i>
+                    <strong>Informações do Solicitante</strong>
+                </div>
+            </div>
+
+            <div class="info_solic">
+                <div>
+                    <strong>Nome</strong>
+                    <p id="inner_name">---</p>
+                </div>
+                <div>
+                    <strong>E-mail</strong>
+                    <p id="inner_email">---</p>
+                </div>
+                <div>
+                    <strong>Data e Hora da Solicitação</strong>
+                    <p id="inner_dth">---</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
