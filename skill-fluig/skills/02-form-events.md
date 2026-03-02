@@ -47,6 +47,8 @@ Usuário abre o formulário
 - `displayFields` **não é executado** na movimentação em bloco
 - `validateForm` **é executado** na movimentação em bloco
 - `getValue()` **não funciona** dentro de `inputFields` — usar `form.getValue()`
+- **`customHTML` só existe no `displayFields`** — NUNCA usar em enableFields, validateForm ou inputFields
+- **`form.setHideAddButton()` / `form.setHideDeleteButton()` são instáveis** — podem não existir em todas as versões do Fluig. Preferir jQuery no displayFields via customHTML
 
 ---
 
@@ -83,10 +85,10 @@ A variável `form` está disponível em todos os eventos. Os métodos do campo `
 | `form.setEnhancedSecurityHiddenInputs(true)` | Todos os campos desabilitados após esta chamada ficam protegidos |
 | `form.setShowDisabledFields(true)` | Exibe formulário com campos desabilitados visíveis |
 | `form.setHidePrintLink(true)` | Oculta botões de imprimir |
-| `form.setHideDeleteButton(true)` | Oculta botão excluir em TODAS as tabelas pai-filho |
-| `form.setHideDeleteButton("tabela", true)` | Oculta botão excluir em tabela pai-filho específica |
-| `form.setHideAddButton(true)` | Oculta botão adicionar em TODAS as tabelas pai-filho |
-| `form.setHideAddButton("tabela", true)` | Oculta botão adicionar em tabela pai-filho específica |
+| `form.setHideDeleteButton(true)` | **(⚠ Instável)** Oculta botão excluir em TODAS as tabelas pai-filho. Pode não existir em todas as versões — preferir jQuery no displayFields |
+| `form.setHideDeleteButton("tabela", true)` | **(⚠ Instável)** Oculta botão excluir em tabela específica. Pode não existir — preferir jQuery no displayFields |
+| `form.setHideAddButton(true)` | **(⚠ Instável)** Oculta botão adicionar em TODAS as tabelas pai-filho. Pode não existir — preferir jQuery no displayFields |
+| `form.setHideAddButton("tabela", true)` | **(⚠ Instável)** Oculta botão adicionar em tabela específica. Pode não existir — preferir jQuery no displayFields |
 
 ### 2.3 Propriedades do processo (via getValue global)
 
@@ -204,7 +206,7 @@ function displayFields(form, customHTML) {
     };
 
     // ── Funções getter para o front-end (padrão Jynx) ──
-    customHTML.append("<script>function getUser(){ return '" + dataForm.user + "'; }</script>");
+    customHTML.append("<script>function getUsuario(){ return '" + dataForm.user + "'; }</script>");
     customHTML.append("<script>function getWKNumState(){ return " + dataForm.state + "; }</script>");
     customHTML.append("<script>function getWKNumProces(){ return " + dataForm.processId + "; }</script>");
 
@@ -384,10 +386,32 @@ function enableFields(form) {
             form.setEnabled("nb_quantidade___" + indexes[i], false);
             form.setEnabled("nb_vlr_unitario___" + indexes[i], false);
         }
+    }
+}
+```
 
-        // Ocultar botões de adicionar/excluir linhas
-        form.setHideAddButton("itensCompra", true);
-        form.setHideDeleteButton("itensCompra", true);
+> **⚠ NUNCA usar `form.setHideAddButton()` / `form.setHideDeleteButton()` no enableFields.**
+> Esses métodos podem não existir em todas as versões do Fluig e causam `TypeError: Cannot find function setHideAddButton in object FormController`.
+> Para ocultar botões de adicionar/excluir da tabela pai-filho, usar **jQuery no displayFields via customHTML**:
+
+```javascript
+// No displayFields.js — ocultar botões do pai-filho
+function displayFields(form, customHTML) {
+    var dataForm = {
+        processId: getValue("WKNumProces"),
+        user: getValue("WKUser"),
+        state: getValue("WKNumState")
+    };
+
+    // ... funções getter ...
+
+    // Ocultar botões add/delete do pai-filho nas atividades de aprovação e fim
+    if (dataForm.state == 2 || dataForm.state == 4) {
+        customHTML.append("<script>");
+        customHTML.append("$(document).ready(function(){");
+        customHTML.append("  $('[tablename=itensCompra] .btn-add-line, [tablename=itensCompra] .btn-delete-line').hide();");
+        customHTML.append("});");
+        customHTML.append("</script>");
     }
 }
 ```
@@ -396,9 +420,11 @@ function enableFields(form) {
 
 | Problema | Causa | Solução |
 |---|---|---|
+| `TypeError: Cannot find function setHideAddButton` | `form.setHideAddButton`/`setHideDeleteButton` não existe em todas as versões | **Não usar.** Ocultar botões via jQuery no `displayFields` (ver seção 5.2) |
 | jQuery não encontra campo desabilitado | `setEnabled` adiciona `_` no `name` e `id` | Usar seletores que considerem o prefixo `_` |
 | Usuário altera campo via inspetor do navegador | Campo desabilitado sem proteção | Usar `setEnhancedSecurityHiddenInputs(true)` ANTES dos `setEnabled` |
 | Proteção não funciona fora de processo | `setEnhancedSecurityHiddenInputs` só funciona em contexto de workflow | Para formulários avulsos, usar `setEnabled("campo", false, true)` |
+| `customHTML` não disponível no enableFields | `customHTML` só existe no `displayFields` | **Nunca usar customHTML fora do displayFields.** Mover lógica de injeção de script para o `displayFields` |
 
 > **Regra Jynx:** sempre chamar `form.setEnhancedSecurityHiddenInputs(true)` como primeira linha do enableFields.
 
@@ -657,28 +683,44 @@ function beforeProcessing(form) {
 
 // ── displayFields ─────────────────────────────────────────────
 function displayFields(form, customHTML) {
-    var state = getValue("WKNumState");
-    var mode = form.getFormMode();
-    var user = getValue("WKUser");
+    var dataForm = {
+        processId: getValue("WKNumProces"),
+        user: getValue("WKUser"),
+        state: getValue("WKNumState")
+    };
+
+    // ── Funções getter para o front-end (padrão Jynx) ──
+    customHTML.append("<script>function getUsuario(){ return '" + dataForm.user + "'; }</script>");
+    customHTML.append("<script>function getWKNumState(){ return " + dataForm.state + "; }</script>");
+    customHTML.append("<script>function getWKNumProces(){ return " + dataForm.processId + "; }</script>");
 
     // Preenchimento automático na abertura
-    if (mode != "VIEW") {
-        if (state == 0 || state == 1) {
-            form.setValue("txt_solicitante", _buscarNomeUsuario(user));
-            form.setValue("hd_login_solicitante", user);
+    if (form.getFormMode() != "VIEW") {
+        if (dataForm.state == 0 || dataForm.state == 1) {
+            form.setValue("txt_solicitante", _buscarNomeUsuario(dataForm.user));
+            form.setValue("hd_login_solicitante", dataForm.user);
             form.setValue("dt_solicitacao", _retornaDataAtual());
         }
     }
 
     // Controle de visibilidade por atividade
-    if (state == 0 || state == 1) {
+    if (dataForm.state == 0 || dataForm.state == 1) {
         customHTML.append("<script>");
         customHTML.append("$('.pnl_parecer, .pnl_status_banner').addClass('hide');");
         customHTML.append("</script>");
     }
-    if (state == 2) {
+    if (dataForm.state == 2) {
         customHTML.append("<script>");
         customHTML.append("$('.pnl_status_banner').addClass('hide');");
+        customHTML.append("</script>");
+    }
+
+    // Ocultar botões add/delete do pai-filho (NÃO usar form.setHideAddButton)
+    if (dataForm.state >= 2) {
+        customHTML.append("<script>");
+        customHTML.append("$(document).ready(function(){");
+        customHTML.append("  $('[tablename=itensCompra] .btn-add-line, [tablename=itensCompra] .btn-delete-line').hide();");
+        customHTML.append("});");
         customHTML.append("</script>");
     }
 }
@@ -759,7 +801,11 @@ function _buscarNomeUsuario(login) {
 □ Todos os eventos em Rhino ES5 (sem let/const/arrow/Promise)
 □ displayFields controla visibilidade de TODOS os states do processo
 □ displayFields tem tratamento para states não mapeados (segurança)
+□ displayFields usa dataForm + 3 funções getter (padrão Jynx)
 □ enableFields chama setEnhancedSecurityHiddenInputs(true) primeiro
+□ enableFields NÃO usa form.setHideAddButton/setHideDeleteButton (instável)
+□ Botões add/delete de pai-filho ocultos via jQuery no displayFields
+□ customHTML usado APENAS no displayFields (nunca em outros eventos)
 □ validateForm verifica WKCompletTask antes de validar (não bloquear salvamento de rascunho)
 □ validateForm tem validações por atividade (state)
 □ inputFields padroniza datas se formulário usa campos de data
