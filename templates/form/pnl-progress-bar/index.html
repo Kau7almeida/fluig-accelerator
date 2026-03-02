@@ -1,0 +1,41 @@
+<head>
+    <link rel="stylesheet" href="style.css">
+    <!-- App Principal -->
+    <script defer src="app.js"></script>
+    <script defer src="controller.js"></script>
+    <script defer type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
+</head>
+
+<form name="form" role="form">
+
+    <div id="progress_bar" class="panel-custom customized-painel painel-mobile">
+        <div class="panel-head">
+            <div class="head-panel customized-painel-header margin-mobile-none"
+                style="align-items: baseline !important;">
+                <h2>Etapa da Solicitação</h2>
+            </div>
+            <hr>
+        </div>
+        <div class="panel-body hide-mobile">
+            <section class="step-wizard">
+                <ul class="step-wizard-list">
+
+                    <li class="step-wizard-item" id="step_inicio">
+                        <span class="progress-count"><i
+                                class="fluigicon fluigicon-arrow-go-to-down icon-sm icon-progress"></i></span>
+                        <span class="progress-label">Início</span>
+                    </li>
+
+                    <li class="step-wizard-item" id="step_dois">
+                        <span class="progress-count"><i
+                                class="fluigicon fluigicon-arrow-go-to-down icon-sm icon-progress"></i></span>
+                        <span class="progress-label">Dois</span>
+                    </li>
+
+                </ul>
+
+            </section>
+        </div>
+    </div>
+
+</form>
