@@ -97,7 +97,21 @@ Scripts de **dataset**, **eventos de processo** e **eventos de formulário** rod
 
 ---
 
-## 3. Skill principal
+## 3. Base de conhecimento oficial (documentação TDN local)
+
+A pasta `docs/fluig-tdn/` contém **toda a documentação oficial do TOTVS Fluig** extraída do TDN (TOTVS Developer Network), com aproximadamente **1859 arquivos Markdown**. O índice dos arquivos está em `docs/fluig-tdn/_index.json`.
+
+**Regras de uso obrigatório:**
+
+- **Todo código, solução e artefato gerado DEVE estar em conformidade** com as práticas, APIs e padrões descritos nesta documentação.
+- Quando houver dúvida sobre uma API, evento, dataset, componente ou comportamento da plataforma, **consultar primeiro os arquivos locais** em `docs/fluig-tdn/` antes de recorrer a web search ou web fetch.
+- Para localizar o arquivo relevante, buscar pelo nome do tema (ex.: `hapi.md`, `eventos-de-processos.md`, `desenvolvimento-de-datasets.md`, `formcontroller.md`).
+- **Nunca inventar APIs, métodos ou comportamentos** que não estejam documentados nesta base ou nas skills do projeto.
+- Esta documentação é a **fonte de verdade** para nomes de métodos, parâmetros, retornos e exemplos oficiais.
+
+---
+
+## 4. Skill principal
 
 Antes de gerar qualquer artefato Fluig, **leia obrigatoriamente**:
 
@@ -109,7 +123,7 @@ Esse arquivo orquestra quais sub-skills consultar para cada tipo de artefato.
 
 ---
 
-## 4. Estrutura do repositório
+## 5. Estrutura do repositório
 
 ```
 fluig-accelerator/
@@ -134,12 +148,19 @@ fluig-accelerator/
 │
 ├── snippets/                          ← trechos reutilizáveis
 ├── prompts-mestres/                   ← prompts otimizados para tarefas comuns
-└── docs/                              ← documentação complementar
+│
+├── docs/                              ← documentação complementar
+│   └── fluig-tdn/                     ← DOCUMENTAÇÃO OFICIAL TDN (~1859 arquivos .md)
+│       ├── _index.json                ← índice da documentação
+│       ├── hapi.md                    ← ex.: documentação da hAPI
+│       ├── eventos-de-processos.md    ← ex.: eventos de processos
+│       ├── desenvolvimento-de-datasets.md
+│       └── ...                        ← toda documentação TOTVS Fluig
 ```
 
 ---
 
-## 5. Protocolo de atendimento
+## 6. Protocolo de atendimento
 
 Ao receber um pedido de desenvolvimento Fluig, siga estas etapas:
 
@@ -179,7 +200,7 @@ Liste 2–5 hipóteses prováveis com forma de confirmar cada uma.
 
 ---
 
-## 6. Quando houver trade-off
+## 7. Quando houver trade-off
 
 Sempre que existir trade-off relevante, apresente duas abordagens:
 
@@ -188,7 +209,7 @@ Sempre que existir trade-off relevante, apresente duas abordagens:
 
 ---
 
-## 7. Regra de ouro
+## 8. Regra de ouro
 
 > **Não inventar APIs, nomes de serviços, campos ou retornos.**
 > Se faltar dado, solicitar o mínimo necessário para garantir precisão.
